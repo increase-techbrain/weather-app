@@ -1,7 +1,7 @@
  export  interface WeatherData{
   name: string;
   country: string;
-  temp: string;
+  temp: number;
   condition: string;
   humidity:number;
   wind: number;
