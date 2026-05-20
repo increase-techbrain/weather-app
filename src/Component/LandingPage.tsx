@@ -1,16 +1,64 @@
 import { CloudSun, Droplet, MapPin, Wind } from "lucide-react"
 
-import { useNavigate } from "react-router-dom";
+import type { WeatherData} from "./types";
+import SearchBar from "./SearchBar";
+import axios from "axios";
+import { useState } from "react";
+
+
 
 const LandingPage = () => {
+  const [city, setCity] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [weather, setWeather] = useState<WeatherData>(
+    {
+      name: "",
+    country: "",
+    temp: 0,
+    condition: "",
+    humidity: 0,
+    wind: 0,
+    }
+  );
+
+  const API_KEY ="761c469a44b6569a68be35df78588e36";
+
+  const getWeather = async () =>{
+    if(!city) return;
+
+    try{
+      setLoading(true);
+
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+      );
+
+      const data = response.data;
+
+      setWeather({
+        name: data.name,
+        country: data.sys.country,
+        temp: Math.round(data.main.temp),
+        condition: data.weather[0].main,
+        humidity: data.main.humidity,
+        wind: data.wind.speed
+      });
+    }catch (error){
+      console.log(error);
+      alert("city not found");
+    }finally{
+      setLoading (false);
+    }
+    
+  };
   
-  const navigate = useNavigate();
+ 
   return (
     <div className="min-h-screen bg-sky-100">
       <nav className="flex items-center justify-between px-8 py-6">
         <h1 className="text-2xl font-extrabold text-sky-900 ">SkyCast</h1>
 
-           <button onClick={()=> navigate("/weather")} className="bg-blue-900/90 hover:bg-blue-800 text-white px-5 py-2 rounded-full hover:scale-105 duration-300 cursor-pointer">Get Started </button>
+           
 
     
         
@@ -53,27 +101,29 @@ const LandingPage = () => {
               </div>
             </div>
         </div>
-        <div className="flex justify-center">
+        <div className="flex justify-center pb-40">
           <div className="w-[340px] bg-white rounded-4xl shadow-2xl p-6" >
-            <div className="rounded-full px-4 py-3 bg-gray-200">
-              <input type="text"   placeholder="search city....." className="bg-transparent outline-none w-full"/>
-
+            <div className="">
+             <SearchBar 
+             city={city}
+             setCity={setCity}
+             getWeather={getWeather}/>
 
             </div >
              <div className="flex flex-col items-center mt-10">
              <MapPin className="text-gray-500"/>
-             <h1 className="text-4xl font-bold mt-2 text-blue-950">Lagos</h1>
-             <p className="text-gray-500">Nigeria</p>
+             <h1 className="text-4xl font-bold mt-2 text-blue-950">{weather.name}</h1>
+             <p className="text-gray-500">{weather.country}</p>
 
              <CloudSun size={120} className="text-[#132c63] mt-6"/>
-             <h1 className="text-6xl font-extrabold mt-6">  28°</h1>
+             <h1 className="text-6xl font-extrabold mt-6"> {weather.temp}°</h1>
 
-             <p className="text-gray-500 text-xl mt-2">Cloudy</p>
+             <p className="text-gray-500 text-xl mt-2">{weather.condition}</p>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-10">
             <div className="bg-gray-200 rounded-2xl p-4 ">
               <Droplet className="text-blue-800"/>
-              <h1 className="font-bold text-2xl mt-3">68%</h1>
+              <h1 className="font-bold text-2xl mt-3">{weather.humidity}%</h1>
               <p className="text-gray-500 text-sm">
                   Humidity
                 </p>
@@ -81,7 +131,7 @@ const LandingPage = () => {
             </div>
             <div className="bg-gray-200 rounded-2xl p-4 ">
               <Wind className="text-blue-800"/>
-              <h1 className="font-bold text-2xl mt-3">5km/h</h1>
+              <h1 className="font-bold text-2xl mt-3">{weather.wind}km/h</h1>
               <p className="text-gray-500 text-sm">
                   Wind speed
                 </p>
