@@ -101,7 +101,13 @@ const LandingPage = () => {
               </div>
             </div>
         </div>
-        <div className="flex justify-center pb-40">
+
+        {loading ? (
+          <p className="text-center text-white mt-10">
+         Loading...
+         </p>
+        ):(
+           <div className="flex justify-center pb-40">
           <div className="w-[340px] bg-white rounded-4xl shadow-2xl p-6" >
             <div className="">
              <SearchBar 
@@ -146,6 +152,9 @@ const LandingPage = () => {
 
         </div>
 
+          
+        )}
+       
       </div>
 
     </div>
